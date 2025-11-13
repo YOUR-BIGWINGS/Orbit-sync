@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sync Group - Project Management Portal</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #0f1419 0%,
+          #1a2332 50%,
+          #0f1419 100%
+        );
+        color: #e8eaed;
+        line-height: 1.7;
+        min-height: 100vh;
+        position: relative;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      .grid-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: linear-gradient(
+            rgba(255, 0, 0, 0.02) 1px,
+            transparent 1px
+          ),
+          linear-gradient(90deg, rgba(255, 0, 0, 0.02) 1px, transparent 1px);
+        background-size: 60px 60px;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      header {
+        background: linear-gradient(
+          180deg,
+          rgba(26, 35, 50, 0.95) 0%,
+          rgba(15, 20, 25, 0.95) 100%
+        );
+        backdrop-filter: blur(10px);
+        border-bottom: 2px solid rgba(255, 0, 0, 0.3);
+        padding: 2.5rem 0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        position: relative;
+        z-index: 10;
+      }
+
+      .header-content {
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 3rem;
+        font-weight: 300;
+        letter-spacing: 4px;
+        color: #ffffff;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+      }
+
+      .tagline {
+        color: #ff7d8b;
+        font-size: 0.95rem;
+        letter-spacing: 2px;
+      }
+
+      main {
+        padding: 5rem 0;
+        position: relative;
+        z-index: 1;
+      }
+
+      .hero-section {
+        text-align: center;
+        margin-bottom: 5rem;
+        padding: 3rem 2rem;
+        background: linear-gradient(
+          135deg,
+          rgba(26, 35, 50, 0.8) 0%,
+          rgba(20, 28, 40, 0.8) 100%
+        );
+        backdrop-filter: blur(10px);
+        border-radius: 8px;
+        border: 1px solid rgba(255, 0, 0, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+
+      .hero-section h2 {
+        font-size: 2.5rem;
+        font-weight: 300;
+        margin-bottom: 1.5rem;
+        color: #ffffff;
+        line-height: 1.4;
+        letter-spacing: 1px;
+      }
+
+      .hero-section p {
+        font-size: 1.2rem;
+        color: #a8b8c8;
+        max-width: 800px;
+        margin: 0 auto 2rem;
+        line-height: 1.8;
+      }
+
+      .description {
+        max-width: 900px;
+        margin: 0 auto 3rem;
+        padding: 2rem;
+        background: rgba(255, 0, 0, 0.08);
+        border-left: 4px solid #ff0000;
+        font-size: 1.05rem;
+        color: #c8d6e8;
+        border-radius: 4px;
+      }
+
+      .navigation-section {
+        margin-top: 4rem;
+      }
+
+      .section-heading {
+        font-size: 1.8rem;
+        font-weight: 300;
+        text-align: center;
+        margin-bottom: 3rem;
+        color: #ffffff;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+
+      .button-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      .nav-button {
+        background: linear-gradient(
+          135deg,
+          rgba(26, 35, 50, 0.7) 0%,
+          rgba(20, 28, 40, 0.7) 100%
+        );
+        backdrop-filter: blur(5px);
+        border: 2px solid rgba(255, 0, 0, 0.3);
+        padding: 2.5rem 2rem;
+        text-align: center;
+        cursor: not-allowed;
+        transition: all 0.4s ease;
+        position: relative;
+        text-decoration: none;
+        color: #e8eaed;
+        display: block;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .nav-button::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 0, 0, 0.2),
+          transparent
+        );
+        transition: left 0.5s ease;
+      }
+
+      .nav-button:hover::before {
+        left: 100%;
+      }
+
+      .nav-button:hover {
+        border-color: rgba(255, 0, 0, 0.6);
+        box-shadow: 0 8px 32px rgba(255, 0, 0, 0.2);
+        transform: translateY(-4px);
+      }
+
+      .nav-button h3 {
+        font-size: 1.5rem;
+        font-weight: 400;
+        margin-bottom: 1rem;
+        letter-spacing: 1px;
+        color: #ffffff;
+      }
+
+      .nav-button p {
+        font-size: 0.95rem;
+        color: #a8b8c8;
+        line-height: 1.6;
+      }
+
+      .nav-button::after {
+        content: "Coming Soon";
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: linear-gradient(135deg, #ff0000, #cc0000);
+        color: #ffffff;
+        padding: 0.3rem 0.8rem;
+        font-size: 0.7rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        border-radius: 3px;
+        box-shadow: 0 2px 8px rgba(255, 0, 0, 0.4);
+      }
+
+      footer {
+        background: linear-gradient(
+          180deg,
+          rgba(15, 20, 25, 0.95) 0%,
+          rgba(10, 14, 19, 0.95) 100%
+        );
+        border-top: 2px solid rgba(255, 0, 0, 0.3);
+        padding: 2rem 0;
+        text-align: center;
+        color: #ff7d8b;
+        font-size: 0.9rem;
+        margin-top: 5rem;
+        position: relative;
+        z-index: 10;
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2rem;
+        }
+
+        .hero-section h2 {
+          font-size: 1.8rem;
+        }
+
+        .hero-section p {
+          font-size: 1.05rem;
+        }
+
+        .button-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="grid-overlay"></div>
+
+    <header>
+      <div class="container">
+        <div class="header-content">
+          <h1>Sync Group</h1>
+          <p class="tagline">Personal Project Portfolio</p>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="container">
+        <section class="hero-section">
+          <h2>Welcome to My Project Portfolio</h2>
+          <p>
+            This is my personal project showcase, where I track and document the
+            various projects I'm working on. From concept to completion, this
+            site provides an overview of my creative and technical endeavors.
+          </p>
+
+          <div class="description">
+            I believe in organized development and clear documentation. This
+            portfolio helps me stay focused on my goals while providing a
+            central place to review what I've built, what I'm currently
+            developing, and what exciting projects are on the horizon.
+          </div>
+        </section>
+
+        <section class="navigation-section">
+          <h2 class="section-heading">Browse Projects</h2>
+          <div class="button-grid">
+            <div class="nav-button">
+              <h3>In Progress</h3>
+              <p>
+                Check out what I'm currently working on and see the progress on
+                active projects.
+              </p>
+            </div>
+
+            <div class="nav-button">
+              <h3>Upcoming</h3>
+              <p>Explore ideas and projects I'm planning to start soon.</p>
+            </div>
+
+            <div class="nav-button">
+              <h3>Completed</h3>
+              <p>
+                Browse through finished projects and see what I've accomplished.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <p>&copy; 2025 Sync Group | Personal Project Portfolio</p>
+      </div>
+    </footer>
+  </body>
+</html>
