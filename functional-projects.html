@@ -647,12 +647,28 @@
             ></textarea>
           </div>
           <div class="form-group">
-            <label for="projectUrl">URL</label>
+            <label for="projectDevelopers">Developers (comma-separated)</label>
+            <input
+              type="text"
+              id="projectDevelopers"
+              placeholder="Developer 1, Developer 2, Developer 3"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="projectUrl">GitHub Link (optional)</label>
             <input
               type="url"
               id="projectUrl"
-              placeholder="https://example.com"
-              required
+              placeholder="https://github.com/..."
+            />
+          </div>
+          <div class="form-group">
+            <label for="projectGameLink">Game Link (optional)</label>
+            <input
+              type="url"
+              id="projectGameLink"
+              placeholder="https://game-link.com"
             />
           </div>
           <div class="form-actions">
@@ -692,12 +708,30 @@
             ></textarea>
           </div>
           <div class="form-group">
-            <label for="editProjectUrl">URL</label>
+            <label for="editProjectDevelopers"
+              >Developers (comma-separated)</label
+            >
+            <input
+              type="text"
+              id="editProjectDevelopers"
+              placeholder="Developer 1, Developer 2, Developer 3"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="editProjectUrl">GitHub Link (optional)</label>
             <input
               type="url"
               id="editProjectUrl"
-              placeholder="https://example.com"
-              required
+              placeholder="https://github.com/..."
+            />
+          </div>
+          <div class="form-group">
+            <label for="editProjectGameLink">Game Link (optional)</label>
+            <input
+              type="url"
+              id="editProjectGameLink"
+              placeholder="https://game-link.com"
             />
           </div>
           <div class="form-actions">
@@ -715,6 +749,81 @@
             <button type="submit" class="btn btn-primary">Save Changes</button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- Info Box Modal (View Mode) -->
+    <div class="modal" id="infoModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="infoProjectName">Project Name</h2>
+          <p>Game Information</p>
+        </div>
+        <div style="margin-bottom: 1.5rem">
+          <h3
+            style="
+              font-size: 1.1rem;
+              color: #5b9bd5;
+              margin-bottom: 0.5rem;
+              letter-spacing: 1px;
+            "
+          >
+            Developers
+          </h3>
+          <ul
+            id="infoDevelopersList"
+            style="list-style: none; padding-left: 0; color: #a8b8c8"
+          ></ul>
+        </div>
+        <div style="margin-bottom: 1.5rem">
+          <h3
+            style="
+              font-size: 1.1rem;
+              color: #5b9bd5;
+              margin-bottom: 0.5rem;
+              letter-spacing: 1px;
+            "
+          >
+            Links
+          </h3>
+          <div style="display: flex; flex-direction: column; gap: 0.8rem">
+            <a
+              id="infoWebsiteLink"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              style="
+                color: #e8a87c;
+                text-decoration: none;
+                transition: color 0.3s ease;
+              "
+              onmouseover="this.style.color='#ffffff'"
+              onmouseout="this.style.color='#e8a87c'"
+            >
+              GitHub Link
+            </a>
+            <a
+              id="infoGameLink"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              style="
+                color: #e8a87c;
+                text-decoration: none;
+                transition: color 0.3s ease;
+              "
+              onmouseover="this.style.color='#ffffff'"
+              onmouseout="this.style.color='#e8a87c'"
+            >
+              🎮 Game Link
+            </a>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="closeInfo">
+            Close
+          </button>
+        </div>
       </div>
     </div>
 
@@ -744,6 +853,8 @@
       const cancelEdit = document.getElementById("cancelEdit");
       const deleteProjectBtn = document.getElementById("deleteProjectBtn");
       const editProjectsButton = document.getElementById("editProjectsButton");
+      const infoModal = document.getElementById("infoModal");
+      const closeInfo = document.getElementById("closeInfo");
 
       // Load projects from localStorage
       function loadProjects() {
@@ -769,11 +880,9 @@
           projectList.innerHTML = projects
             .map(
               (project, index) => `
-            <li class="project-item${
-              isAuthenticated ? " editable" : ""
-            }" data-index="${index}" onclick="${
-                isAuthenticated ? `handleProjectClick(${index})` : ""
-              }">
+            <li class="project-item" data-index="${index}" 
+                onclick="handleProjectClick(${index})" 
+                style="cursor: pointer;">
               <div class="project-icon">
                 <img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(
                   project.url
@@ -783,11 +892,9 @@
               </div>
               <div class="project-content">
                 <div class="project-name">
-                  <a href="${escapeHtml(
-                    project.url
-                  )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();">${escapeHtml(
-                project.name
-              )}</a>
+                  <span style="color: #ffffff; font-weight: 400;">${escapeHtml(
+                    project.name
+                  )}</span>
                 </div>
                 <div class="project-description">${escapeHtml(
                   project.description
@@ -883,10 +990,20 @@
         const description = document
           .getElementById("projectDescription")
           .value.trim();
+        const developersInput = document
+          .getElementById("projectDevelopers")
+          .value.trim();
+        const developers = developersInput
+          .split(",")
+          .map((d) => d.trim())
+          .filter((d) => d);
         const url = document.getElementById("projectUrl").value.trim();
+        const gameLink = document
+          .getElementById("projectGameLink")
+          .value.trim();
 
-        if (name && description && url) {
-          projects.push({ name, description, url });
+        if (name && description && developers.length > 0) {
+          projects.push({ name, description, developers, url, gameLink });
           saveProjects();
           addProjectModal.classList.remove("active");
           addProjectForm.reset();
@@ -907,11 +1024,41 @@
         }
       }
 
-      // Handle project click (for edit mode)
+      // Handle project click - edit mode shows edit modal, view mode shows info
       function handleProjectClick(index) {
         if (isAuthenticated) {
           openEditModal(index);
+        } else {
+          openInfoModal(index);
         }
+      }
+
+      // Open info modal with project data (view mode)
+      function openInfoModal(index) {
+        const project = projects[index];
+        document.getElementById("infoProjectName").textContent = project.name;
+
+        // Display developers
+        const developersList = document.getElementById("infoDevelopersList");
+        if (project.developers && project.developers.length > 0) {
+          developersList.innerHTML = project.developers
+            .map(
+              (dev) =>
+                `<li style="margin-bottom: 0.3rem;">• ${escapeHtml(dev)}</li>`
+            )
+            .join("");
+        } else {
+          developersList.innerHTML =
+            '<li style="color: #666;">No developers listed</li>';
+        }
+
+        // Set links
+        const websiteLink = document.getElementById("infoWebsiteLink");
+        const gameLink = document.getElementById("infoGameLink");
+        websiteLink.href = project.url || "#";
+        gameLink.href = project.gameLink || "#";
+
+        infoModal.classList.add("active");
       }
 
       // Open edit modal with project data
@@ -921,7 +1068,12 @@
         document.getElementById("editProjectName").value = project.name;
         document.getElementById("editProjectDescription").value =
           project.description;
+        document.getElementById("editProjectDevelopers").value = (
+          project.developers || []
+        ).join(", ");
         document.getElementById("editProjectUrl").value = project.url;
+        document.getElementById("editProjectGameLink").value =
+          project.gameLink || "";
         editProjectModal.classList.add("active");
         document.getElementById("editProjectName").focus();
       }
@@ -946,10 +1098,20 @@
         const description = document
           .getElementById("editProjectDescription")
           .value.trim();
+        const developersInput = document
+          .getElementById("editProjectDevelopers")
+          .value.trim();
+        const developers = developersInput
+          .split(",")
+          .map((d) => d.trim())
+          .filter((d) => d);
         const url = document.getElementById("editProjectUrl").value.trim();
+        const gameLink = document
+          .getElementById("editProjectGameLink")
+          .value.trim();
 
-        if (name && description && url) {
-          projects[index] = { name, description, url };
+        if (name && description && developers.length > 0) {
+          projects[index] = { name, description, developers, url, gameLink };
           saveProjects();
           editProjectModal.classList.remove("active");
           editProjectForm.reset();
@@ -982,12 +1144,18 @@
         }
       }
 
+      // Close info modal
+      closeInfo.addEventListener("click", () => {
+        infoModal.classList.remove("active");
+      });
+
       // Close modals on ESC key
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
           authModal.classList.remove("active");
           addProjectModal.classList.remove("active");
           editProjectModal.classList.remove("active");
+          infoModal.classList.remove("active");
           authError.classList.remove("active");
           passwordInput.value = "";
           addProjectForm.reset();
@@ -996,17 +1164,19 @@
       });
 
       // Close modals on background click
-      [authModal, addProjectModal, editProjectModal].forEach((modal) => {
-        modal.addEventListener("click", (e) => {
-          if (e.target === modal) {
-            modal.classList.remove("active");
-            authError.classList.remove("active");
-            passwordInput.value = "";
-            addProjectForm.reset();
-            editProjectForm.reset();
-          }
-        });
-      });
+      [authModal, addProjectModal, editProjectModal, infoModal].forEach(
+        (modal) => {
+          modal.addEventListener("click", (e) => {
+            if (e.target === modal) {
+              modal.classList.remove("active");
+              authError.classList.remove("active");
+              passwordInput.value = "";
+              addProjectForm.reset();
+              editProjectForm.reset();
+            }
+          });
+        }
+      );
 
       // Initialize
       loadProjects();

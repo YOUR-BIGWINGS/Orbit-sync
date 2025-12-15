@@ -711,6 +711,69 @@
       </div>
     </div>
 
+    <!-- Info Box Modal (View Mode) -->
+    <div class="modal" id="infoModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="infoProjectName">Project Name</h2>
+          <p>Project Information</p>
+        </div>
+        <div style="margin-bottom: 1.5rem">
+          <h3
+            style="
+              font-size: 1.1rem;
+              color: #5b9bd5;
+              margin-bottom: 0.5rem;
+              letter-spacing: 1px;
+            "
+          >
+            Description
+          </h3>
+          <p
+            id="infoProjectDescription"
+            style="color: #a8b8c8; line-height: 1.6"
+          ></p>
+        </div>
+        <div style="margin-bottom: 1.5rem">
+          <h3
+            style="
+              font-size: 1.1rem;
+              color: #5b9bd5;
+              margin-bottom: 0.5rem;
+              letter-spacing: 1px;
+            "
+          >
+            Link
+          </h3>
+          <div style="display: flex; flex-direction: column; gap: 0.8rem">
+            <a
+              id="infoProjectLink"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              style="
+                color: #e8a87c;
+                text-decoration: none;
+                transition: color 0.3s ease;
+              "
+              onmouseover="this.style.color='#ffffff'"
+              onmouseout="this.style.color='#e8a87c'"
+            >
+              🔗 Open Project Link
+            </a>
+            <span id="infoNoLinkText" style="color: #666; display: none">
+              No link set for this project.
+            </span>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="closeInfo">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script>
       // Configuration
       const _0x4a2c = atob("U2M0bm4zcjE=");
@@ -737,6 +800,8 @@
       const cancelEdit = document.getElementById("cancelEdit");
       const deleteProjectBtn = document.getElementById("deleteProjectBtn");
       const editProjectsButton = document.getElementById("editProjectsButton");
+      const infoModal = document.getElementById("infoModal");
+      const closeInfo = document.getElementById("closeInfo");
 
       // Load projects from localStorage
       function loadProjects() {
@@ -764,9 +829,7 @@
               (project, index) => `
             <li class="project-item${
               isAuthenticated ? " editable" : ""
-            }" data-index="${index}" onclick="${
-                isAuthenticated ? `handleProjectClick(${index})` : ""
-              }">
+            }" data-index="${index}" onclick="handleProjectClick(${index})">
               <div class="project-icon">
                 <img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(
                   project.url
@@ -776,11 +839,9 @@
               </div>
               <div class="project-content">
                 <div class="project-name">
-                  <a href="${escapeHtml(
-                    project.url
-                  )}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();">${escapeHtml(
-                project.name
-              )}</a>
+                  <span style="color: #ffffff; font-weight: 400;">${escapeHtml(
+                    project.name
+                  )}</span>
                 </div>
                 <div class="project-description">${escapeHtml(
                   project.description
@@ -900,11 +961,36 @@
         }
       }
 
-      // Handle project click (for edit mode)
+      // Handle project click - edit mode shows edit modal, view mode shows info
       function handleProjectClick(index) {
         if (isAuthenticated) {
           openEditModal(index);
+        } else {
+          openInfoModal(index);
         }
+      }
+
+      // Open info modal with project data (view mode)
+      function openInfoModal(index) {
+        const project = projects[index];
+        document.getElementById("infoProjectName").textContent = project.name;
+        document.getElementById("infoProjectDescription").textContent =
+          project.description || "No description set";
+
+        const linkEl = document.getElementById("infoProjectLink");
+        const noLinkText = document.getElementById("infoNoLinkText");
+
+        if (project.url && project.url !== "#") {
+          linkEl.href = project.url;
+          linkEl.style.display = "inline";
+          noLinkText.style.display = "none";
+        } else {
+          linkEl.href = "#";
+          linkEl.style.display = "none";
+          noLinkText.style.display = "inline";
+        }
+
+        infoModal.classList.add("active");
       }
 
       // Open edit modal with project data
@@ -975,12 +1061,18 @@
         }
       }
 
+      // Close info modal
+      closeInfo.addEventListener("click", () => {
+        infoModal.classList.remove("active");
+      });
+
       // Close modals on ESC key
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
           authModal.classList.remove("active");
           addProjectModal.classList.remove("active");
           editProjectModal.classList.remove("active");
+          infoModal.classList.remove("active");
           authError.classList.remove("active");
           passwordInput.value = "";
           addProjectForm.reset();
@@ -989,17 +1081,19 @@
       });
 
       // Close modals on background click
-      [authModal, addProjectModal, editProjectModal].forEach((modal) => {
-        modal.addEventListener("click", (e) => {
-          if (e.target === modal) {
-            modal.classList.remove("active");
-            authError.classList.remove("active");
-            passwordInput.value = "";
-            addProjectForm.reset();
-            editProjectForm.reset();
-          }
-        });
-      });
+      [authModal, addProjectModal, editProjectModal, infoModal].forEach(
+        (modal) => {
+          modal.addEventListener("click", (e) => {
+            if (e.target === modal) {
+              modal.classList.remove("active");
+              authError.classList.remove("active");
+              passwordInput.value = "";
+              addProjectForm.reset();
+              editProjectForm.reset();
+            }
+          });
+        }
+      );
 
       // Initialize
       loadProjects();
