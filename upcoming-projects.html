@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Upcoming Projects - Sync Group</title>
+    <title>Upcoming Projects - Orbit-Zero</title>
     <style>
       * {
         margin: 0;
@@ -559,10 +559,6 @@
               />
             </svg>
             <h3>No Upcoming Projects Yet</h3>
-            <p>
-              Click the edit icon in the footer to add your first upcoming
-              project
-            </p>
           </div>
           <ul class="project-list" id="projectList"></ul>
         </div>
@@ -571,7 +567,7 @@
 
     <footer>
       <div class="container">
-        <p>&copy; 2025 Sync Group | Personal Project Portfolio</p>
+        <p>&copy; 2025 Orbit-Zero | Personal Project Portfolio</p>
       </div>
     </footer>
 
@@ -646,12 +642,11 @@
             ></textarea>
           </div>
           <div class="form-group">
-            <label for="projectUrl">URL</label>
+            <label for="projectUrl">URL (Optional)</label>
             <input
               type="url"
               id="projectUrl"
               placeholder="https://example.com"
-              required
             />
           </div>
           <div class="form-actions">
@@ -691,12 +686,11 @@
             ></textarea>
           </div>
           <div class="form-group">
-            <label for="editProjectUrl">URL</label>
+            <label for="editProjectUrl">URL (Optional)</label>
             <input
               type="url"
               id="editProjectUrl"
               placeholder="https://example.com"
-              required
             />
           </div>
           <div class="form-actions">
@@ -884,8 +878,8 @@
           .value.trim();
         const url = document.getElementById("projectUrl").value.trim();
 
-        if (name && description && url) {
-          projects.push({ name, description, url });
+        if (name && description) {
+          projects.push({ name, description, url: url || "#" });
           saveProjects();
           addProjectModal.classList.remove("active");
           addProjectForm.reset();
@@ -947,8 +941,8 @@
           .value.trim();
         const url = document.getElementById("editProjectUrl").value.trim();
 
-        if (name && description && url) {
-          projects[index] = { name, description, url };
+        if (name && description) {
+          projects[index] = { name, description, url: url || "#" };
           saveProjects();
           editProjectModal.classList.remove("active");
           editProjectForm.reset();
