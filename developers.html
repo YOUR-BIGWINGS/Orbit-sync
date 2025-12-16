@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Developers - Orbit-Zero</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #0f1419 0%,
+          #1a2332 50%,
+          #0f1419 100%
+        );
+        color: #e8eaed;
+        line-height: 1.7;
+        min-height: 100vh;
+        position: relative;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      .grid-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: linear-gradient(
+            rgba(91, 155, 213, 0.02) 1px,
+            transparent 1px
+          ),
+          linear-gradient(90deg, rgba(91, 155, 213, 0.02) 1px, transparent 1px);
+        background-size: 60px 60px;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      header {
+        background: linear-gradient(
+          180deg,
+          rgba(26, 35, 50, 0.95) 0%,
+          rgba(15, 20, 25, 0.95) 100%
+        );
+        backdrop-filter: blur(10px);
+        border-bottom: 2px solid transparent;
+        border-image: linear-gradient(90deg, #5b9bd5, #9ba8b3, #e8a87c) 1;
+        padding: 2rem 0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        position: relative;
+        z-index: 10;
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .back-button {
+        background: linear-gradient(
+          135deg,
+          rgba(91, 155, 213, 0.2),
+          rgba(232, 168, 124, 0.2)
+        );
+        border: 2px solid rgba(91, 155, 213, 0.4);
+        color: #e8a87c;
+        padding: 0.6rem 1.2rem;
+        text-decoration: none;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+      }
+
+      .back-button:hover {
+        background: linear-gradient(
+          135deg,
+          rgba(91, 155, 213, 0.3),
+          rgba(232, 168, 124, 0.3)
+        );
+        border-color: rgba(232, 168, 124, 0.6);
+        transform: translateY(-2px);
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 300;
+        letter-spacing: 3px;
+        color: #ffffff;
+        text-transform: uppercase;
+        text-shadow: 0 0 15px rgba(91, 155, 213, 0.4);
+      }
+
+      .edit-button {
+        background: linear-gradient(
+          135deg,
+          rgba(91, 155, 213, 0.2),
+          rgba(232, 168, 124, 0.2)
+        );
+        border: 2px solid rgba(91, 155, 213, 0.4);
+        color: #5b9bd5;
+        padding: 0.6rem 1.2rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+      }
+
+      .edit-button:hover {
+        background: linear-gradient(
+          135deg,
+          rgba(91, 155, 213, 0.3),
+          rgba(232, 168, 124, 0.3)
+        );
+        border-color: rgba(232, 168, 124, 0.6);
+      }
+
+      .edit-button.is-edit-mode {
+        background: linear-gradient(135deg, #5b9bd5, #e8a87c);
+        border-color: #e8a87c;
+        color: #ffffff;
+      }
+
+      main {
+        padding: 4rem 0;
+        position: relative;
+        z-index: 1;
+      }
+
+      .page-header {
+        text-align: center;
+        margin-bottom: 3rem;
+      }
+
+      .page-header h2 {
+        font-size: 1.8rem;
+        font-weight: 400;
+        color: #e8a87c;
+        margin-bottom: 0.5rem;
+      }
+
+      .page-header p {
+        color: #a8b8c8;
+        font-size: 1.05rem;
+      }
+
+      .developers-container {
+        background: linear-gradient(
+          135deg,
+          rgba(26, 35, 50, 0.8) 0%,
+          rgba(20, 28, 40, 0.8) 100%
+        );
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        border: 1px solid rgba(91, 155, 213, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        padding: 3rem;
+        min-height: 500px;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #a8b8c8;
+      }
+
+      .empty-state h3 {
+        font-size: 1.5rem;
+        font-weight: 300;
+        margin-bottom: 1rem;
+        color: #ffffff;
+      }
+
+      .developers-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+
+      .developer-card {
+        background: linear-gradient(
+          135deg,
+          rgba(26, 35, 50, 0.9) 0%,
+          rgba(20, 28, 40, 0.9) 100%
+        );
+        border: 1px solid rgba(91, 155, 213, 0.2);
+        border-radius: 12px;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .developer-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(91, 155, 213, 0.3);
+        border-color: rgba(232, 168, 124, 0.4);
+      }
+
+      .developer-image {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+        display: block;
+        object-fit: cover;
+        border: 3px solid rgba(91, 155, 213, 0.3);
+        background: linear-gradient(135deg, #5b9bd5, #e8a87c);
+      }
+
+      .developer-name {
+        font-size: 1.3rem;
+        color: #ffffff;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        text-align: center;
+      }
+
+      .developer-role {
+        font-size: 0.9rem;
+        color: #e8a87c;
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+
+      .developer-description {
+        font-size: 0.95rem;
+        color: #a8b8c8;
+        line-height: 1.6;
+        text-align: center;
+      }
+
+      .edit-mode .developer-card {
+        border: 2px dashed rgba(232, 168, 124, 0.5);
+      }
+
+      .delete-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(255, 94, 91, 0.8);
+        border: none;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+      }
+
+      .delete-btn:hover {
+        background: rgba(255, 94, 91, 1);
+        transform: scale(1.1);
+      }
+
+      .edit-mode .delete-btn {
+        display: flex;
+      }
+
+      .add-developer-btn {
+        background: linear-gradient(135deg, #5b9bd5, #e8a87c);
+        border: none;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        margin: 2rem auto;
+        display: none;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+      }
+
+      .add-developer-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(91, 155, 213, 0.4);
+      }
+
+      .edit-mode .add-developer-btn {
+        display: block;
+      }
+
+      /* Modal Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(5px);
+        z-index: 1000;
+        overflow-y: auto;
+        padding: 2rem;
+      }
+
+      .modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-content {
+        background: linear-gradient(
+          135deg,
+          rgba(26, 35, 50, 0.98) 0%,
+          rgba(20, 28, 40, 0.98) 100%
+        );
+        border: 1px solid rgba(91, 155, 213, 0.3);
+        border-radius: 12px;
+        max-width: 600px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-header {
+        padding: 2rem;
+        border-bottom: 1px solid rgba(91, 155, 213, 0.2);
+      }
+
+      .modal-header h2 {
+        font-size: 1.8rem;
+        color: #e8a87c;
+        font-weight: 400;
+      }
+
+      .modal-body {
+        padding: 2rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #5b9bd5;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+      }
+
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        padding: 0.8rem;
+        background: rgba(15, 20, 25, 0.6);
+        border: 1px solid rgba(91, 155, 213, 0.3);
+        border-radius: 6px;
+        color: #e8eaed;
+        font-size: 1rem;
+        font-family: inherit;
+        transition: all 0.3s ease;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: #e8a87c;
+        box-shadow: 0 0 0 3px rgba(232, 168, 124, 0.1);
+      }
+
+      .form-group textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      .image-preview {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        margin: 1rem auto;
+        display: block;
+        object-fit: cover;
+        border: 3px solid rgba(91, 155, 213, 0.3);
+        background: linear-gradient(135deg, #5b9bd5, #e8a87c);
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        padding: 1.5rem 2rem;
+        border-top: 1px solid rgba(91, 155, 213, 0.2);
+      }
+
+      .btn {
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        cursor: pointer;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #5b9bd5, #e8a87c);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(91, 155, 213, 0.4);
+      }
+
+      .btn-secondary {
+        background: rgba(91, 155, 213, 0.2);
+        border: 1px solid rgba(91, 155, 213, 0.4);
+        color: #5b9bd5;
+      }
+
+      .btn-secondary:hover {
+        background: rgba(91, 155, 213, 0.3);
+      }
+
+      .info-modal .modal-content {
+        max-width: 700px;
+      }
+
+      .info-modal .developer-image {
+        width: 150px;
+        height: 150px;
+      }
+
+      footer {
+        background: rgba(15, 20, 25, 0.95);
+        border-top: 1px solid rgba(91, 155, 213, 0.2);
+        padding: 2rem 0;
+        text-align: center;
+        color: #a8b8c8;
+        position: relative;
+        z-index: 10;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="grid-overlay"></div>
+
+    <header>
+      <div class="container">
+        <div class="header-content">
+          <a href="index.html" class="back-button">← Back to Home</a>
+          <h1>Developers</h1>
+          <div style="width: 120px"></div>
+        </div>
+        <div style="height: 52px"></div>
+      </div>
+    </header>
+
+    <main>
+      <div class="container">
+        <div class="page-header">
+          <h2>Team & Contributors</h2>
+          <p>
+            Meet the talented developers who have helped bring these projects to
+            life.
+          </p>
+        </div>
+
+        <div class="developers-container" id="developersContainer">
+          <div class="empty-state" id="emptyState">
+            <h3>No Developers Yet</h3>
+            <p>Click the edit button to add team members and contributors.</p>
+          </div>
+          <div class="developers-grid" id="developersGrid"></div>
+        </div>
+
+        <button class="add-developer-btn" id="addDeveloperBtn">
+          + Add Developer
+        </button>
+      </div>
+    </main>
+
+    <!-- Authentication Modal -->
+    <div class="modal" id="authModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Authentication Required</h2>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="authPassword">Enter Password</label>
+            <input
+              type="password"
+              id="authPassword"
+              placeholder="Enter your password"
+            />
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-secondary" id="cancelAuth">Cancel</button>
+          <button class="btn btn-primary" id="submitAuth">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add/Edit Developer Modal -->
+    <div class="modal" id="developerModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modalTitle">Add Developer</h2>
+        </div>
+        <form id="developerForm">
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="developerName">Name</label>
+              <input
+                type="text"
+                id="developerName"
+                placeholder="Enter developer name"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="developerRole">Role/Title</label>
+              <input
+                type="text"
+                id="developerRole"
+                placeholder="e.g., Frontend Developer, Designer"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="developerDescription">Description</label>
+              <textarea
+                id="developerDescription"
+                placeholder="Enter a brief description about this developer"
+                required
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label for="developerImage">Image URL</label>
+              <input
+                type="url"
+                id="developerImage"
+                placeholder="https://example.com/image.jpg"
+              />
+              <img
+                id="imagePreview"
+                class="image-preview"
+                style="display: none"
+              />
+            </div>
+            <input type="hidden" id="developerIndex" />
+          </div>
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="cancelDeveloper"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div class="modal info-modal" id="infoModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="infoDeveloperName"></h2>
+        </div>
+        <div class="modal-body" style="text-align: center">
+          <img id="infoDeveloperImage" class="developer-image" />
+          <div style="margin-bottom: 1.5rem">
+            <h3
+              style="font-size: 1.2rem; color: #e8a87c; margin-bottom: 0.5rem"
+              id="infoDeveloperRole"
+            ></h3>
+          </div>
+          <div style="margin-bottom: 1.5rem">
+            <p
+              id="infoDeveloperDescription"
+              style="color: #a8b8c8; line-height: 1.8; text-align: left"
+            ></p>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="closeInfo">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="container">
+        <p>&copy; 2025 Orbit-Zero | Personal Project Portfolio</p>
+        <div style="text-align: right; margin-top: 12px">
+          <button class="edit-button" id="editButton">Edit Developers</button>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Configuration
+      const _0x4a2c = atob("U2M0bm4zcjE=");
+
+      // State management
+      let isAuthenticated = false;
+      let isEditMode = false;
+      let developers = [];
+      let editingIndex = -1;
+
+      // DOM elements - will be initialized after DOM loads
+      let editButton, authModal, authPassword, submitAuth, cancelAuth;
+      let addDeveloperBtn, developerModal, developerForm, cancelDeveloper;
+      let developersGrid, emptyState, infoModal, closeInfo;
+      let imageInput, imagePreview;
+
+      // Initialize DOM elements
+      document.addEventListener("DOMContentLoaded", () => {
+        console.log("DOMContentLoaded fired");
+        editButton = document.getElementById("editButton");
+        console.log("Edit button:", editButton);
+        authModal = document.getElementById("authModal");
+        authPassword = document.getElementById("authPassword");
+        submitAuth = document.getElementById("submitAuth");
+        cancelAuth = document.getElementById("cancelAuth");
+        addDeveloperBtn = document.getElementById("addDeveloperBtn");
+        developerModal = document.getElementById("developerModal");
+        developerForm = document.getElementById("developerForm");
+        cancelDeveloper = document.getElementById("cancelDeveloper");
+        developersGrid = document.getElementById("developersGrid");
+        emptyState = document.getElementById("emptyState");
+        infoModal = document.getElementById("infoModal");
+        closeInfo = document.getElementById("closeInfo");
+        imageInput = document.getElementById("developerImage");
+        imagePreview = document.getElementById("imagePreview");
+
+        if (!editButton) {
+          console.error("Edit button not found!");
+          return;
+        }
+
+        initializeEventListeners();
+        loadDevelopers();
+      });
+
+      function initializeEventListeners() {
+        // Image preview
+        imageInput.addEventListener("input", (e) => {
+          const url = e.target.value.trim();
+          if (url) {
+            imagePreview.src = url;
+            imagePreview.style.display = "block";
+          } else {
+            imagePreview.style.display = "none";
+          }
+        });
+
+        // Authentication
+        editButton.addEventListener("click", () => {
+          console.log("Edit button clicked! isAuthenticated:", isAuthenticated);
+          if (isAuthenticated) {
+            isEditMode = !isEditMode;
+            document.body.classList.toggle("edit-mode", isEditMode);
+            editButton.classList.toggle("is-edit-mode", isEditMode);
+            editButton.textContent = isEditMode
+              ? "Exit Edit Mode"
+              : "Edit Developers";
+          } else {
+            console.log("Opening auth modal");
+            authModal.classList.add("active");
+            authPassword.focus();
+          }
+        });
+
+        submitAuth.addEventListener("click", () => {
+          if (authPassword.value === _0x4a2c) {
+            isAuthenticated = true;
+            authModal.classList.remove("active");
+            authPassword.value = "";
+            editButton.click();
+          } else {
+            alert("Incorrect password!");
+            authPassword.value = "";
+          }
+        });
+
+        cancelAuth.addEventListener("click", () => {
+          authModal.classList.remove("active");
+          authPassword.value = "";
+        });
+
+        authPassword.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") submitAuth.click();
+        });
+
+        // Add developer button
+        addDeveloperBtn.addEventListener("click", () => {
+          document.getElementById("modalTitle").textContent = "Add Developer";
+          developerForm.reset();
+          imagePreview.style.display = "none";
+          document.getElementById("developerIndex").value = "";
+          editingIndex = -1;
+          developerModal.classList.add("active");
+        });
+
+        // Cancel developer form
+        cancelDeveloper.addEventListener("click", () => {
+          developerModal.classList.remove("active");
+          developerForm.reset();
+        });
+
+        // Submit developer form
+        developerForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+
+          const name = document.getElementById("developerName").value.trim();
+          const role = document.getElementById("developerRole").value.trim();
+          const description = document
+            .getElementById("developerDescription")
+            .value.trim();
+          const image = document.getElementById("developerImage").value.trim();
+          const index = document.getElementById("developerIndex").value;
+
+          if (name && role && description) {
+            const developer = { name, role, description, image };
+
+            if (index !== "") {
+              // Edit existing
+              developers[parseInt(index)] = developer;
+            } else {
+              // Add new
+              developers.push(developer);
+            }
+
+            saveDevelopers();
+            developerModal.classList.remove("active");
+            developerForm.reset();
+          }
+        });
+
+        // Close info modal
+        closeInfo.addEventListener("click", () => {
+          infoModal.classList.remove("active");
+        });
+
+        // Close modals on ESC key
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") {
+            authModal.classList.remove("active");
+            developerModal.classList.remove("active");
+            infoModal.classList.remove("active");
+            authPassword.value = "";
+            developerForm.reset();
+          }
+        });
+
+        // Close modals on background click
+        [authModal, developerModal, infoModal].forEach((modal) => {
+          modal.addEventListener("click", (e) => {
+            if (e.target === modal) {
+              modal.classList.remove("active");
+              if (modal === authModal) authPassword.value = "";
+              if (modal === developerModal) developerForm.reset();
+            }
+          });
+        });
+      }
+
+      // Load developers from localStorage
+      function loadDevelopers() {
+        const saved = localStorage.getItem("orbitDevelopers");
+        if (saved) {
+          developers = JSON.parse(saved);
+          renderDevelopers();
+        }
+      }
+
+      // Save developers to localStorage
+      function saveDevelopers() {
+        localStorage.setItem("orbitDevelopers", JSON.stringify(developers));
+        renderDevelopers();
+      }
+
+      // Render developers grid
+      function renderDevelopers() {
+        if (developers.length === 0) {
+          emptyState.style.display = "block";
+          developersGrid.style.display = "none";
+          return;
+        }
+
+        emptyState.style.display = "none";
+        developersGrid.style.display = "grid";
+
+        developersGrid.innerHTML = developers
+          .map(
+            (dev, index) => `
+          <div class="developer-card" onclick="viewDeveloper(${index})">
+            <button class="delete-btn" onclick="event.stopPropagation(); deleteDeveloper(${index})">×</button>
+            <img class="developer-image" src="${
+              dev.image || defaultImage(dev.name)
+            }" alt="${escapeHtml(dev.name)}" onerror="this.src='${defaultImage(
+              dev.name
+            )}'" />
+            <h3 class="developer-name">${escapeHtml(dev.name)}</h3>
+            <p class="developer-role">${escapeHtml(dev.role)}</p>
+            <p class="developer-description">${escapeHtml(
+              dev.description.substring(0, 100)
+            )}${dev.description.length > 100 ? "..." : ""}</p>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      // Escape HTML
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // Generate default avatar SVG
+      function defaultImage(name) {
+        return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%235b9bd5' width='100' height='100'/%3E%3Ctext x='50' y='50' text-anchor='middle' dominant-baseline='middle' fill='white' font-size='40' font-family='Arial'%3E${name
+          .charAt(0)
+          .toUpperCase()}%3C/text%3E%3C/svg%3E`;
+      }
+
+      // View developer details
+      function viewDeveloper(index) {
+        if (isEditMode) {
+          openEditDeveloper(index);
+          return;
+        }
+
+        const dev = developers[index];
+        document.getElementById("infoDeveloperName").textContent = dev.name;
+        document.getElementById("infoDeveloperRole").textContent = dev.role;
+        document.getElementById("infoDeveloperDescription").textContent =
+          dev.description;
+        document.getElementById("infoDeveloperImage").src =
+          dev.image || defaultImage(dev.name);
+
+        infoModal.classList.add("active");
+      }
+
+      // Open edit developer modal
+      function openEditDeveloper(index) {
+        const dev = developers[index];
+        document.getElementById("modalTitle").textContent = "Edit Developer";
+        document.getElementById("developerName").value = dev.name;
+        document.getElementById("developerRole").value = dev.role;
+        document.getElementById("developerDescription").value = dev.description;
+        document.getElementById("developerImage").value = dev.image || "";
+        document.getElementById("developerIndex").value = index;
+
+        if (dev.image) {
+          imagePreview.src = dev.image;
+          imagePreview.style.display = "block";
+        } else {
+          imagePreview.style.display = "none";
+        }
+
+        editingIndex = index;
+        developerModal.classList.add("active");
+      }
+
+      // Delete developer
+      function deleteDeveloper(index) {
+        if (confirm("Are you sure you want to remove this developer?")) {
+          developers.splice(index, 1);
+          saveDevelopers();
+        }
+      }
+    </script>
+  </body>
+</html>

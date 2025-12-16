@@ -642,11 +642,28 @@
             ></textarea>
           </div>
           <div class="form-group">
-            <label for="projectUrl">URL (Optional)</label>
+            <label for="projectDevelopers">Developers (comma-separated)</label>
+            <input
+              type="text"
+              id="projectDevelopers"
+              placeholder="Developer 1, Developer 2, Developer 3"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="projectUrl">GitHub Link (optional)</label>
             <input
               type="url"
               id="projectUrl"
-              placeholder="https://example.com"
+              placeholder="https://github.com/..."
+            />
+          </div>
+          <div class="form-group">
+            <label for="projectGameLink">Game Link (optional)</label>
+            <input
+              type="url"
+              id="projectGameLink"
+              placeholder="https://game-link.com"
             />
           </div>
           <div class="form-actions">
@@ -686,11 +703,30 @@
             ></textarea>
           </div>
           <div class="form-group">
-            <label for="editProjectUrl">URL (Optional)</label>
+            <label for="editProjectDevelopers"
+              >Developers (comma-separated)</label
+            >
+            <input
+              type="text"
+              id="editProjectDevelopers"
+              placeholder="Developer 1, Developer 2, Developer 3"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="editProjectUrl">GitHub Link (optional)</label>
             <input
               type="url"
               id="editProjectUrl"
-              placeholder="https://example.com"
+              placeholder="https://github.com/..."
+            />
+          </div>
+          <div class="form-group">
+            <label for="editProjectGameLink">Game Link (optional)</label>
+            <input
+              type="url"
+              id="editProjectGameLink"
+              placeholder="https://game-link.com"
             />
           </div>
           <div class="form-actions">
@@ -743,11 +779,27 @@
               letter-spacing: 1px;
             "
           >
-            Link
+            Developers
+          </h3>
+          <ul
+            id="infoDevelopersList"
+            style="list-style: none; padding-left: 0; color: #a8b8c8"
+          ></ul>
+        </div>
+        <div style="margin-bottom: 1.5rem">
+          <h3
+            style="
+              font-size: 1.1rem;
+              color: #5b9bd5;
+              margin-bottom: 0.5rem;
+              letter-spacing: 1px;
+            "
+          >
+            Links
           </h3>
           <div style="display: flex; flex-direction: column; gap: 0.8rem">
             <a
-              id="infoProjectLink"
+              id="infoWebsiteLink"
               href="#"
               target="_blank"
               rel="noopener noreferrer"
@@ -759,11 +811,23 @@
               onmouseover="this.style.color='#ffffff'"
               onmouseout="this.style.color='#e8a87c'"
             >
-              🔗 Open Project Link
+              GitHub Link
             </a>
-            <span id="infoNoLinkText" style="color: #666; display: none">
-              No link set for this project.
-            </span>
+            <a
+              id="infoGameLink"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              style="
+                color: #e8a87c;
+                text-decoration: none;
+                transition: color 0.3s ease;
+              "
+              onmouseover="this.style.color='#ffffff'"
+              onmouseout="this.style.color='#e8a87c'"
+            >
+              🎮 Game Link
+            </a>
           </div>
         </div>
         <div class="form-actions">
@@ -937,10 +1001,20 @@
         const description = document
           .getElementById("projectDescription")
           .value.trim();
+        const developersInput = document
+          .getElementById("projectDevelopers")
+          .value.trim();
+        const developers = developersInput
+          .split(",")
+          .map((d) => d.trim())
+          .filter((d) => d);
         const url = document.getElementById("projectUrl").value.trim();
+        const gameLink = document
+          .getElementById("projectGameLink")
+          .value.trim();
 
-        if (name && description) {
-          projects.push({ name, description, url: url || "#" });
+        if (name && description && developers.length > 0) {
+          projects.push({ name, description, developers, url, gameLink });
           saveProjects();
           addProjectModal.classList.remove("active");
           addProjectForm.reset();
@@ -977,18 +1051,25 @@
         document.getElementById("infoProjectDescription").textContent =
           project.description || "No description set";
 
-        const linkEl = document.getElementById("infoProjectLink");
-        const noLinkText = document.getElementById("infoNoLinkText");
-
-        if (project.url && project.url !== "#") {
-          linkEl.href = project.url;
-          linkEl.style.display = "inline";
-          noLinkText.style.display = "none";
+        // Display developers
+        const developersList = document.getElementById("infoDevelopersList");
+        if (project.developers && project.developers.length > 0) {
+          developersList.innerHTML = project.developers
+            .map(
+              (dev) =>
+                `<li style="margin-bottom: 0.3rem;">• ${escapeHtml(dev)}</li>`
+            )
+            .join("");
         } else {
-          linkEl.href = "#";
-          linkEl.style.display = "none";
-          noLinkText.style.display = "inline";
+          developersList.innerHTML =
+            '<li style="color: #666;">No developers listed</li>';
         }
+
+        // Set links
+        const websiteLink = document.getElementById("infoWebsiteLink");
+        const gameLink = document.getElementById("infoGameLink");
+        websiteLink.href = project.url || "#";
+        gameLink.href = project.gameLink || "#";
 
         infoModal.classList.add("active");
       }
@@ -1000,7 +1081,12 @@
         document.getElementById("editProjectName").value = project.name;
         document.getElementById("editProjectDescription").value =
           project.description;
+        document.getElementById("editProjectDevelopers").value = (
+          project.developers || []
+        ).join(", ");
         document.getElementById("editProjectUrl").value = project.url;
+        document.getElementById("editProjectGameLink").value =
+          project.gameLink || "";
         editProjectModal.classList.add("active");
         document.getElementById("editProjectName").focus();
       }
@@ -1025,10 +1111,20 @@
         const description = document
           .getElementById("editProjectDescription")
           .value.trim();
+        const developersInput = document
+          .getElementById("editProjectDevelopers")
+          .value.trim();
+        const developers = developersInput
+          .split(",")
+          .map((d) => d.trim())
+          .filter((d) => d);
         const url = document.getElementById("editProjectUrl").value.trim();
+        const gameLink = document
+          .getElementById("editProjectGameLink")
+          .value.trim();
 
-        if (name && description) {
-          projects[index] = { name, description, url: url || "#" };
+        if (name && description && developers.length > 0) {
+          projects[index] = { name, description, developers, url, gameLink };
           saveProjects();
           editProjectModal.classList.remove("active");
           editProjectForm.reset();
